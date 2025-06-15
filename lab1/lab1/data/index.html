@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LED Control</title>
+    <style>
+        body { font-family: Arial; text-align: center; margin-top: 50px; }
+        .led-container { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+        .led-box { width: 50px; height: 50px; border: 2px solid black; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .led-on { background-color: yellow; }
+        .led-off { background-color: gray; }
+        button { font-size: 20px; padding: 10px 20px; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>LED Control via Web</h1>
+    <button onclick="simulateButton()">Press Button</button>
+    <button onclick="simulateButtonRemote()">Press Remote Button</button>
+
+    <div class="led-container">
+        <div>
+            <div id="led1" class="led-box led-off">LED1</div>
+        </div>
+        <div>
+            <div id="led2" class="led-box led-off">LED2</div>
+        </div>
+        <div>
+            <div id="led3" class="led-box led-off">LED3</div>
+        </div>
+    </div>
+
+    <script>
+        function simulateButton() {
+            fetch('/press', { method: 'POST' })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                    updateLEDStatus();
+                });
+        }
+
+        function simulateButtonRemote() {
+            fetch('/pressRemote', { method: 'POST' })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                    updateLEDStatus();
+                });
+        }
+
+        function updateLEDStatus() {
+            fetch('/ledStatus')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('led1').className = data.led1 ? 'led-box led-on' : 'led-box led-off';
+                    document.getElementById('led2').className = data.led2 ? 'led-box led-on' : 'led-box led-off';
+                    document.getElementById('led3').className = data.led3 ? 'led-box led-on' : 'led-box led-off';
+                })
+                .catch(error => console.error('led error:', error));
+        }
+
+        setInterval(updateLEDStatus, 1000); // Оновлення кожну секунду
+    </script>
+</body>
+</html>
